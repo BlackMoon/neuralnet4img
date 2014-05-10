@@ -1,0 +1,75 @@
+﻿<Window x:Class="neural.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Сжатие изображений" Closing="Window_Closing" Icon="hxplay.ico" >
+
+    <Window.CommandBindings>
+        <CommandBinding Command="ApplicationCommands.Open" Executed="OpenCommandHandler" />
+    </Window.CommandBindings>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <Menu VerticalAlignment="Top" Grid.Row="0" Grid.ColumnSpan="3">
+            <MenuItem Header="_Файл">
+                <MenuItem Header="От_крыть" InputGestureText="Ctrl+O" Command="Open" >
+                    <MenuItem.Icon>
+                        <Image Source="pack://siteoforigin:,,,/Resources/folder_open_16.png" Height="16" Width="16" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <Separator />
+                <MenuItem Header="Вы_ход" InputGestureText="Alt+F4" Click="ExitItem_Click" />
+            </MenuItem>
+            <MenuItem Header="_Справка">
+                <MenuItem Header="_О програме" Click="AboutItem_Click"/>
+            </MenuItem>
+        </Menu>
+        <ToolBarTray VerticalAlignment="Top" Grid.Row="1" Grid.ColumnSpan="3">
+            <ToolBar>
+                <Button Command="Open" ToolTip="Открыть">
+                    <Image Source="pack://siteoforigin:,,,/Resources/folder_open_16.png"/>
+                </Button>                
+            </ToolBar>
+            <ToolBar>
+                <TextBlock Text="Качество:" VerticalAlignment="Center" Margin="5, 0, 5, 0"/>
+                <Slider Width="200" Maximum="100" Value="80" TickFrequency="5" TickPlacement="BottomRight" />
+            </ToolBar>
+        </ToolBarTray>
+        <Label Content="Оригинальное изображение" Grid.Row="2" Grid.Column="0" HorizontalAlignment="Center"/>
+        <Label Content="Преобразованное изображение" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Center"/>        
+        <Label Content="Шум" Grid.Row="2" Grid.Column="2" HorizontalAlignment="Center"/>
+        
+        <Border BorderBrush="Gray" Margin="10, 0, 10, 10" BorderThickness="1" Grid.Row="3" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
+            <Image Name="imgOrig" />
+        </Border>
+
+        <Border BorderBrush="Gray" Margin="10, 0, 10, 10" BorderThickness="1" Grid.Row="3" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >            
+            <Image Name="imgReconstr" />
+        </Border>
+
+        <Border BorderBrush="Gray" Margin="10, 0, 10, 10" BorderThickness="1" Grid.Row="3" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
+            <Image Name="imgNoise" />
+        </Border>
+
+        <DockPanel Grid.ColumnSpan="3" Grid.Row="5">
+            <StatusBar DockPanel.Dock="Bottom">
+                <StatusBarItem>
+                    <TextBlock Name="lblInfo" />
+                </StatusBarItem>
+            </StatusBar>
+        </DockPanel>
+    </Grid>
+</Window>

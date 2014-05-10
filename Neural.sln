@@ -1,0 +1,27 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "neural", "neural\neural.csproj", "{EBA4DF89-3F78-45C1-B2AE-355003E1706C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EBA4DF89-3F78-45C1-B2AE-355003E1706C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EBA4DF89-3F78-45C1-B2AE-355003E1706C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EBA4DF89-3F78-45C1-B2AE-355003E1706C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EBA4DF89-3F78-45C1-B2AE-355003E1706C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		BuildVersion_BuildVersioningStyle = None.None.Increment.TimeStamp
+		BuildVersion_AssemblyInfoFilename = neural\Properties\AssemblyInfo.cs
+		BuildVersion_StartDate = 2014/5/10
+		BuildVersion_UpdateFileVersion = True
+		BuildVersion_UpdateAssemblyVersion = True
+	EndGlobalSection
+EndGlobal

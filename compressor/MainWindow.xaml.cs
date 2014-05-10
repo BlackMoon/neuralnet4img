@@ -1,5 +1,7 @@
-﻿using Microsoft.Win32;
+﻿using compressor.Neuro;
+using Microsoft.Win32;
 using System;
+using System.Drawing;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Input;
@@ -79,10 +81,25 @@ namespace compressor
         {
             BitmapImage bmp = (BitmapImage)imgOrig.Source;
             int h = bmp.PixelHeight,
-                stride = (bmp.PixelWidth * bmp.Format.BitsPerPixel + 7) / 8;
+                stride = (bmp.PixelWidth * bmp.Format.BitsPerPixel + 7) / 8,
+                len = h * stride,
+                len4 = len / 4;
             
-            byte[] pixels = new byte[h * stride];
+            byte[] pixels = new byte[len];
             bmp.CopyPixels(pixels, stride, 0);
+
+            uint [] hexes = new uint[len4];
+            for (int i = 0, j = 0; i < len; i+= 4, j++)
+            {
+                byte b = pixels[i];
+                byte g = pixels[i + 1];
+                byte r = pixels[i + 2];
+                byte a = pixels[i + 3];
+
+                hexes[j] = (uint)((a << 24) | (r << 16) | (g << 8) | b); 
+            }
+
+            Network nt = new Network(len4, 3);
         }
     }
 }

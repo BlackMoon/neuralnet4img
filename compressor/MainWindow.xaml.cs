@@ -4,6 +4,7 @@ using System;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace compressor
@@ -20,6 +21,8 @@ namespace compressor
         private int _radius     = 10;
         private int _iterations = 1000;
 
+        private DistanceNetwork nt = null;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -31,7 +34,7 @@ namespace compressor
             this.Left = prefs.WindowLeft;
             this.WindowState = prefs.WindowState;
 
-            PrepareParams(false);
+            PrepareParams(false);            
         }
 
         private void PrepareParams(bool get = true){
@@ -96,6 +99,14 @@ namespace compressor
             }
         }
 
+        private void RandomizeNetwork()
+        {
+            Neuron.RandRange = new Range<double>(0, 255);
+
+            // randomize net
+            nt.Randomize();
+        }
+
         private void OpenCommandHandler(object sender, ExecutedRoutedEventArgs e)
         {
             OpenFileDialog dlg = new OpenFileDialog();
@@ -150,7 +161,9 @@ namespace compressor
                 byte a = pixels[i + 3];               
             }
 
-            DistanceNetwork nt = new DistanceNetwork(4, _nx * _ny);
+            Neuron.RandRange = new Range<double>(0, 255);
+            nt = new DistanceNetwork(4, _nx * _ny);            
+
             SOMLearning trainer = new SOMLearning(nt, _nx, _ny);
 
             double fixedLearningRate = _rate / 10;
@@ -185,22 +198,24 @@ namespace compressor
             byte[] array = new byte[_ny * stride];
             Layer layer = nt[0];
 
-            for (int y = 0; y < _ny; y++)
+            for (int y = 0, i = 0; y < _ny; y++)
             {
                 // for all pixels
-                for (int x = 0; x < stride; x += 4)
+                for (int x = 0; x < stride; i++, x += 4)
                 {
-                    Neuron neuron = layer[y];
-                    array[stride * y + x] = (byte)(byte.MaxValue * neuron[0]);
-                    array[stride * y + x + 1] = (byte)(byte.MaxValue * neuron[1]);
-                    array[stride * y + x + 2] = (byte)(byte.MaxValue * neuron[2]);
-                    array[stride * y + x + 3] = (byte)(byte.MaxValue * neuron[3]);
+                    Neuron neuron = layer[i];
+                    array[stride * y + x] = (byte)Math.Max(0, Math.Min(255, neuron[0]));
+                    array[stride * y + x + 1] = (byte)Math.Max(0, Math.Min(255, neuron[1]));
+                    array[stride * y + x + 2] = (byte)Math.Max(0, Math.Min(255, neuron[2]));
+                    array[stride * y + x + 3] = (byte)Math.Max(0, Math.Min(255, neuron[3]));
                 }
             }
 
             try
             {
-                WriteableBitmap bm1 = new WriteableBitmap(_nx, _ny, bmp.DpiX, bmp.DpiY, bmp.Format, null);
+                System.Drawing.Graphics g = System.Drawing.Graphics.FromHwnd(IntPtr.Zero);
+
+                WriteableBitmap bm1 = new WriteableBitmap(_nx, _ny, g.DpiX, g.DpiY, bmp.Format, null);
                 bm1.WritePixels(new Int32Rect(0, 0, _nx, _ny), array, stride, 0);
 
                 imgMap.Source = bm1;

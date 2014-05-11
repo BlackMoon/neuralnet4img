@@ -85,5 +85,14 @@ namespace compressor.Neuro
 
             return output;
         }
+
+        public virtual void Randomize()
+        {
+            foreach (Layer layer in layers)
+            {
+                layer.Randomize();
+            }
+        }
+
     }
 }

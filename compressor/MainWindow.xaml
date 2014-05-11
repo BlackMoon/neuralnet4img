@@ -53,19 +53,19 @@
             </ToolBar>
         </ToolBarTray>
         <Label Content="Оригинальное изображение" Grid.Row="2" Grid.Column="0" HorizontalAlignment="Center"/>
-        <Label Content="Преобразованное изображение" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Center"/>        
-        <Label Content="Шум" Grid.Row="2" Grid.Column="2" HorizontalAlignment="Center"/>
+        <Label Content="Карта" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Center"/>
+        <Label Content="Преобразованное изображение" Grid.Row="2" Grid.Column="2" HorizontalAlignment="Center"/>                
         
         <Border BorderBrush="Gray" Margin="10, 0, 10, 10" BorderThickness="1" Grid.Row="3" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
             <Image Name="imgOrig" />
         </Border>
 
         <Border BorderBrush="Gray" Margin="10, 0, 10, 10" BorderThickness="1" Grid.Row="3" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >            
-            <Image Name="imgReconstr" />
+            <Image Name="imgMap" />
         </Border>
 
         <Border BorderBrush="Gray" Margin="10, 0, 10, 10" BorderThickness="1" Grid.Row="3" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
-            <Image Name="imgNoise" />
+            <Image Name="imgReconstr" />
         </Border>
 
         <DockPanel Grid.ColumnSpan="3" Grid.Row="5">

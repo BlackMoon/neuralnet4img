@@ -58,9 +58,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Neuro\Layer.cs" />
-    <Compile Include="Neuro\Network.cs" />
-    <Compile Include="Neuro\Neuron.cs" />
+    <Compile Include="Neuro\Layers\DistanceLayer.cs" />
+    <Compile Include="Neuro\Learning\IUnsupervisedLearning.cs" />
+    <Compile Include="Neuro\Learning\SOMLearning.cs" />
+    <Compile Include="Neuro\Networks\DistanceNetwork.cs" />
+    <Compile Include="Neuro\Neurons\DistanceNeuron.cs" />
+    <Compile Include="Neuro\Layers\Layer.cs" />
+    <Compile Include="Neuro\Networks\Network.cs" />
+    <Compile Include="Neuro\Neurons\Neuron.cs" />
+    <Compile Include="Neuro\Range.cs" />
     <Compile Include="UserPreferences.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

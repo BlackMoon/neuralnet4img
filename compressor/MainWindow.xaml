@@ -1,11 +1,13 @@
 ﻿<Window x:Class="compressor.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:self="clr-namespace:compressor"
         Title="Сжатие изображений" Closing="Window_Closing" Icon="hxplay.ico" >
 
     <Window.CommandBindings>
         <CommandBinding Command="ApplicationCommands.Open" Executed="OpenCommandHandler" />
-    </Window.CommandBindings>
+        <CommandBinding Command="self:CustomCommands.Start" Executed="StartCommandHandler" />
+    </Window.CommandBindings>    
 
     <Grid>
         <Grid.RowDefinitions>
@@ -31,22 +33,38 @@
                     </MenuItem.Icon>
                 </MenuItem>
                 <Separator />
+                <MenuItem Header="Старт" Command="self:CustomCommands.Start" />
+                <Separator />
                 <MenuItem Header="Вы_ход" InputGestureText="Alt+F4" Click="ExitItem_Click" />
             </MenuItem>
             <MenuItem Header="_Справка">
                 <MenuItem Header="_О програме" Click="AboutItem_Click"/>
             </MenuItem>
         </Menu>
-        <ToolBarTray VerticalAlignment="Top" Grid.Row="1" Grid.ColumnSpan="3">
+        <ToolBarTray Grid.Row="1" Grid.ColumnSpan="3">
             <ToolBar>
                 <Button Command="Open" ToolTip="Открыть">
                     <Image Source="pack://siteoforigin:,,,/Resources/folder_open_16.png"/>
                 </Button>                
             </ToolBar>
             <ToolBar>
-                <Button Click="StartButton_Click" >Старт</Button>                
-                <Separator/>
-                
+                <Label>Итерации</Label>
+                <TextBox Name="txtIter" Text="100" Width="40" KeyDown="txtNum_KeyDown"/>
+                <Separator />
+                <Label>Радиус</Label>
+                <TextBox Name="txtRadius" Text="10" Width="40" KeyDown="txtNum_KeyDown"/>
+                <Separator />
+                <Label>Скорость обучения</Label>
+                <TextBox Name="txtRate" Text="0.1" Width="40" KeyDown="txtNum_KeyDown"/>
+                <Separator />
+                <Label>NX</Label>
+                <TextBox Name="txtNX" Text="10" Width="40" KeyDown="txtNum_KeyDown"/>
+                <Separator />
+                <Label>NY</Label>
+                <TextBox Name="txtNY" Text="10" Width="40" KeyDown="txtNum_KeyDown"/>
+            </ToolBar>
+            <ToolBar>
+                <Button Command="self:CustomCommands.Start" >Старт</Button>
             </ToolBar>
         </ToolBarTray>
         <Label Content="Оригинальное изображение" Grid.Row="2" Grid.Column="0" HorizontalAlignment="Center"/>

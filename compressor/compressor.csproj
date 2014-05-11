@@ -58,6 +58,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Alt\Neuron.cs" />
+    <Compile Include="Alt\Som.cs" />
     <Compile Include="Neuro\Layers\DistanceLayer.cs" />
     <Compile Include="Neuro\Learning\IUnsupervisedLearning.cs" />
     <Compile Include="Neuro\Learning\SOMLearning.cs" />

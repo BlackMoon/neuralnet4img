@@ -80,21 +80,28 @@ namespace compressor
             prefs.Save();
         }
 
-        private void InitButton_Click(object sender, RoutedEventArgs e)
+        private void StartButton_Click(object sender, RoutedEventArgs e)
         {
-            BitmapImage bmp = (BitmapImage)imgOrig.Source;
-            int h = bmp.PixelHeight,
-                stride = (bmp.PixelWidth * bmp.Format.BitsPerPixel + 7) / 8,
-                len = h * stride,
-                len4 = len / 4;
+            this.Cursor = Cursors.Wait;
+            lblStatus.Text = "Обучение";
+
+            BitmapSource bmp = (BitmapSource)imgOrig.Source;
+            int H = bmp.PixelHeight,
+                W = bmp.PixelWidth,
+                stride = (W * bmp.Format.BitsPerPixel + 7) / 8,
+                len = H * stride;               
             
             byte[] pixels = new byte[len];
             bmp.CopyPixels(pixels, stride, 0);
-            
-            // input
-            double[] input = new double[len];
 
-            uint [] hexes = new uint[len4];
+            int NX = 80;
+            int NY = 80;          
+
+            #region hidden
+           
+            // input
+            double[] input = new double[4];
+            
             for (int i = 0, j = 0; i < len; i+= 4, j++)
             {
                 byte b = pixels[i];
@@ -103,10 +110,10 @@ namespace compressor
                 byte a = pixels[i + 3];
 
                 //hexes[j] = (uint)((a << 24) | (r << 16) | (g << 8) | b); 
-                input[i] = (double)pixels[i];
+                //input[i] = (double)pixels[i];
             }
 
-            DistanceNetwork nt = new DistanceNetwork(len4, 100);
+            DistanceNetwork nt = new DistanceNetwork(4, NX * NY);
 
             SOMLearning	trainer = new SOMLearning( nt );
 
@@ -115,7 +122,7 @@ namespace compressor
 			double	fixedLearningRate = 0.1/*learningRate*/ / 10;
 			double	driftingLearningRate = fixedLearningRate * 9;
 
-            int iterations = 100;
+            int iterations = 1000;
 			// iterations
 			int k = 0;
 
@@ -123,15 +130,13 @@ namespace compressor
             while (true)
             {
                 trainer.LearningRate = driftingLearningRate * (iterations - k) / iterations + fixedLearningRate;
-                trainer.LearningRadius = (double)15/*radius*/ * (iterations - k) / iterations;
+                trainer.LearningRadius = (double)5/*radius*/ * (iterations - k) / iterations;
 
-
-
-                /*
-                input[0] = rand.Next(256);
-                input[1] = rand.Next(256);
-                input[2] = rand.Next(256);
-                input[3] = rand.Next(256);*/
+                int i = rand.Next(H*W);
+                input[0] = pixels[i];
+                input[1] = pixels[i + 1];
+                input[2] = pixels[i + 2];
+                input[3] = pixels[i + 3];
 
                 trainer.Run(input);
 
@@ -147,31 +152,39 @@ namespace compressor
                     break;
             }
 
+            stride = 4 * NX;
+            byte[] array = new byte[NY * stride];
+            Layer layer = nt[0];
 
-            byte[] array = new byte[100];
-            for (int i = 0; i < nt.Output.Length; i++)
+            for (int y = 0; y < NY; y++)
             {
-                array[i] = (byte)nt.Output[i];
-            }
-            
+                // for all pixels
+                for (int x = 0; x < stride; x+= 4)
+                {
+                    Neuron neuron = layer[y];
+                    array[stride * y + x] = (byte)(byte.MaxValue * neuron[0]);
+                    array[stride * y + x + 1] = (byte)(byte.MaxValue * neuron[1]);
+                    array[stride * y + x + 2] = (byte)(byte.MaxValue * neuron[2]);
+                    array[stride * y + x + 3] = (byte)(byte.MaxValue * neuron[3]);
+                }
+            }   
+           
             try
-            {   
-                BitmapImage bm = new BitmapImage();                
-                //bm.BeginInit();
-                bm.CacheOption = BitmapCacheOption.OnLoad;
-                bm.StreamSource = new MemoryStream(array);
-                //bm.EndInit();
-
-                imgMap.Height = 100;
-                imgMap.Width = 100;
-                imgMap.Source = bm;
+            {
+                WriteableBitmap bm1 = new WriteableBitmap(NX, NY, bmp.DpiX, bmp.DpiY, bmp.Format, null);
+                bm1.WritePixels(new Int32Rect(0, 0, NX, NY), array, stride, 0); 
+                    
+                imgMap.Source = bm1;
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(ex.Message);
+                MessageBox.Show(ex.Message);                    
             }
-            
-            
+           
+            #endregion
+
+            lblStatus.Text = "";
+            this.Cursor = Cursors.Arrow;
         }
     }
 }

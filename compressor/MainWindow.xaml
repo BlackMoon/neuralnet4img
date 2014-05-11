@@ -44,12 +44,9 @@
                 </Button>                
             </ToolBar>
             <ToolBar>
-                <Button Name="btnInit" Click="InitButton_Click" >Инициализация</Button>
-                <Button>Обучение</Button>
-                <Button>Сжатие</Button>
+                <Button Click="StartButton_Click" >Старт</Button>                
                 <Separator/>
-                <TextBlock Text="Качество:" VerticalAlignment="Center" Margin="5, 0, 5, 0"/>
-                <Slider Width="200" Maximum="100" Value="80" TickFrequency="5" TickPlacement="BottomRight" />
+                
             </ToolBar>
         </ToolBarTray>
         <Label Content="Оригинальное изображение" Grid.Row="2" Grid.Column="0" HorizontalAlignment="Center"/>
@@ -57,11 +54,11 @@
         <Label Content="Преобразованное изображение" Grid.Row="2" Grid.Column="2" HorizontalAlignment="Center"/>                
         
         <Border BorderBrush="Gray" Margin="10, 0, 10, 10" BorderThickness="1" Grid.Row="3" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
-            <Image Name="imgOrig" />
+            <Image Name="imgOrig" Source="d:\dev\compressor\copy.bmp" StretchDirection="DownOnly" />
         </Border>
 
         <Border BorderBrush="Gray" Margin="10, 0, 10, 10" BorderThickness="1" Grid.Row="3" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >            
-            <Image Name="imgMap" />
+            <Image Name="imgMap" StretchDirection="DownOnly" />
         </Border>
 
         <Border BorderBrush="Gray" Margin="10, 0, 10, 10" BorderThickness="1" Grid.Row="3" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
@@ -71,7 +68,10 @@
         <DockPanel Grid.ColumnSpan="3" Grid.Row="5">
             <StatusBar DockPanel.Dock="Bottom">
                 <StatusBarItem>
-                    <TextBlock Name="lblInfo" />
+                    <TextBlock Name="lblInfo" />                    
+                </StatusBarItem>
+                <StatusBarItem HorizontalAlignment="Right">
+                    <TextBlock Name="lblStatus" />
                 </StatusBarItem>
             </StatusBar>
         </DockPanel>

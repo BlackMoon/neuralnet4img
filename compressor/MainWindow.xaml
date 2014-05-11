@@ -33,7 +33,11 @@
                     </MenuItem.Icon>
                 </MenuItem>
                 <Separator />
-                <MenuItem Header="Старт" Command="self:CustomCommands.Start" />
+                <MenuItem Header="Старт" Command="self:CustomCommands.Start" >
+                    <MenuItem.Icon>
+                        <Image Source="pack://siteoforigin:,,,/Resources/gears16.png" Height="16" Width="16" />
+                    </MenuItem.Icon>
+                </MenuItem>
                 <Separator />
                 <MenuItem Header="Вы_ход" InputGestureText="Alt+F4" Click="ExitItem_Click" />
             </MenuItem>
@@ -49,22 +53,27 @@
             </ToolBar>
             <ToolBar>
                 <Label>Итерации</Label>
-                <TextBox Name="txtIter" Text="100" Width="40" KeyDown="txtNum_KeyDown"/>
+                <TextBox Name="txtIter" Width="40" KeyDown="txtNum_KeyDown"/>
                 <Separator />
                 <Label>Радиус</Label>
-                <TextBox Name="txtRadius" Text="10" Width="40" KeyDown="txtNum_KeyDown"/>
+                <TextBox Name="txtRadius" Width="40" KeyDown="txtNum_KeyDown"/>
                 <Separator />
                 <Label>Скорость обучения</Label>
-                <TextBox Name="txtRate" Text="0.1" Width="40" KeyDown="txtNum_KeyDown"/>
+                <TextBox Name="txtRate" Width="40" KeyDown="txtNum_KeyDown"/>
                 <Separator />
                 <Label>NX</Label>
-                <TextBox Name="txtNX" Text="10" Width="40" KeyDown="txtNum_KeyDown"/>
+                <TextBox Name="txtNX" Width="40" KeyDown="txtNum_KeyDown"/>
                 <Separator />
                 <Label>NY</Label>
-                <TextBox Name="txtNY" Text="10" Width="40" KeyDown="txtNum_KeyDown"/>
+                <TextBox Name="txtNY" Width="40" KeyDown="txtNum_KeyDown"/>
             </ToolBar>
             <ToolBar>
-                <Button Command="self:CustomCommands.Start" >Старт</Button>
+                <Button Command="self:CustomCommands.Start" >
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="Resources/gears16.png" />
+                        <TextBlock Text="Старт" Margin="5, 0" />
+                    </StackPanel>
+                </Button>
             </ToolBar>
         </ToolBarTray>
         <Label Content="Оригинальное изображение" Grid.Row="2" Grid.Column="0" HorizontalAlignment="Center"/>

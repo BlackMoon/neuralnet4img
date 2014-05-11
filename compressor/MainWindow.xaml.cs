@@ -15,10 +15,10 @@ namespace compressor
     {
         private double _rate    = 0.1;
 
-        private int _nx         = 10;
-        private int _ny         = 10;
+        private int _nx         = 100;
+        private int _ny         = 100;
         private int _radius     = 10;
-        private int _iterations = 100;
+        private int _iterations = 1000;
 
         public MainWindow()
         {
@@ -30,16 +30,70 @@ namespace compressor
             this.Top = prefs.WindowTop;
             this.Left = prefs.WindowLeft;
             this.WindowState = prefs.WindowState;
+
+            PrepareParams(false);
         }
 
-        private void PrepareParams(){
+        private void PrepareParams(bool get = true){
 
-            double.TryParse(txtRate.Text, out _rate);
+            if (get)
+            {
+                // nx
+                try
+                {
+                    _nx = Math.Max(1, Math.Min(1000, int.Parse(txtNX.Text)));
+                }
+                catch
+                {
+                }
 
-            int.TryParse(txtNX.Text, out _nx);
-            int.TryParse(txtNY.Text, out _ny);
-            int.TryParse(txtRadius.Text, out _radius);
-            int.TryParse(txtIter.Text, out _iterations);
+                // ny
+                try
+                {
+                    _ny = Math.Max(1, Math.Min(1000, int.Parse(txtNY.Text)));
+                }
+                catch
+                {
+                }             
+
+                // iterations
+                try
+                {
+                    _iterations = Math.Max(10, Math.Min(1000000, int.Parse(txtIter.Text)));
+                }
+                catch
+                {
+                }
+
+                // rate
+                try
+                {
+                    _rate = Math.Max(0.00001, Math.Min(1.0, double.Parse(txtRate.Text)));
+                }
+                catch
+                {   
+                }
+
+                // radius
+                try
+                {
+                    _radius = Math.Max(5, Math.Min(75, int.Parse(txtRadius.Text)));
+                }
+                catch
+                {   
+                }
+
+
+
+            }
+            else
+            {
+                txtRate.Text = _rate.ToString();
+                txtNX.Text = _nx.ToString();
+                txtNY.Text = _ny.ToString();
+                txtRadius.Text = _radius.ToString();
+                txtIter.Text = _iterations.ToString();
+            }
         }
 
         private void OpenCommandHandler(object sender, ExecutedRoutedEventArgs e)
@@ -72,8 +126,8 @@ namespace compressor
         {
             PrepareParams();
 
-            this.Cursor = Cursors.Wait;
             lblStatus.Text = "Обучение";
+            this.Cursor = Cursors.Wait;
 
             BitmapSource bmp = (BitmapSource)imgOrig.Source;
             int H = bmp.PixelHeight,
@@ -83,14 +137,12 @@ namespace compressor
 
             byte[] pixels = new byte[len];
             bmp.CopyPixels(pixels, stride, 0);
-           
-
-            #region hidden
+          
 
             // input
             double[] input = new double[4];
 
-            for (int i = 0, j = 0; i < len; i += 4, j++)
+            for (int i = 0; i < len; i += 4)
             {
                 byte b = pixels[i];
                 byte g = pixels[i + 1];
@@ -99,7 +151,7 @@ namespace compressor
             }
 
             DistanceNetwork nt = new DistanceNetwork(4, _nx * _ny);
-            SOMLearning trainer = new SOMLearning(nt);
+            SOMLearning trainer = new SOMLearning(nt, _nx, _ny);
 
             double fixedLearningRate = _rate / 10;
             double driftingLearningRate = fixedLearningRate * 9;
@@ -121,14 +173,9 @@ namespace compressor
                 input[3] = pixels[i + 3];
 
                 trainer.Run(input);
-
-
                 // increase current iteration
                 k++;
-
-                // set current iteration's info
-                //currentIterationBox.Text = i.ToString( );
-
+                
                 // stop ?
                 if (k >= _iterations)
                     break;
@@ -162,8 +209,6 @@ namespace compressor
             {
                 MessageBox.Show(ex.Message);
             }
-
-            #endregion
 
             lblStatus.Text = "";
             this.Cursor = Cursors.Arrow;

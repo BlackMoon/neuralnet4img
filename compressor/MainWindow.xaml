@@ -89,7 +89,7 @@
         </ToolBarTray>
         <Label Content="Оригинальное изображение" Grid.Row="2" Grid.Column="0" HorizontalAlignment="Center"/>
         <Label Content="Карта" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Center"/>
-        <Label Content="Преобразованное изображение" Grid.Row="2" Grid.Column="2" HorizontalAlignment="Center"/>                
+        <Label Content="Сжатое изображение" Grid.Row="2" Grid.Column="2" HorizontalAlignment="Center"/>                
         
         <Border BorderBrush="Gray" Margin="10, 0, 10, 10" BorderThickness="1" Grid.Row="3" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
             <Image Name="imgOrig" Source="d:\dev\compressor\copy.bmp" StretchDirection="DownOnly" />

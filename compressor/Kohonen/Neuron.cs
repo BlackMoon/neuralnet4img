@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace compressor.Kohonen
 {
@@ -9,6 +6,11 @@ namespace compressor.Kohonen
     {
         public int dim;
         public double [] w;
+
+        public double this[int index]
+        {
+            get { return w[index]; }
+        }
 
         public Neuron(int dim)
         {

@@ -15,6 +15,11 @@ namespace compressor.Kohonen
 
         public Neuron[,] map;
 
+        public Neuron this[int y, int x]
+        {
+            get { return map[y, x]; }
+        }
+
         public Som(int nx, int ny, int dim)
         {
             this.nx = nx;
@@ -46,13 +51,35 @@ namespace compressor.Kohonen
                     e = map[y, x].Deviation(v);
                     if (e < emin) 
                     {
-                        e = emin;
+                        emin = e;
                         mx = x;
                         my = y;
                     }
                 }
             }
             return new int[2]{mx, my};
+        }
+
+        public Neuron FindBmu1(double[] v)
+        {
+            double e;
+            double emin = 4000000000;
+            Neuron bmu = null;
+
+            for (int y = 0; y < ny; y++)
+            {
+                for (int x = 0; x < nx; x++)
+                {
+                    Neuron n = map[y, x];
+                    e = n.Deviation(v);
+                    if (e < emin)
+                    {
+                        emin = e;
+                        bmu = n;
+                    }
+                }
+            }
+            return bmu;
         }
 
         public double Learn(double [] v)

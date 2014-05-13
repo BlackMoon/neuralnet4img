@@ -1,4 +1,4 @@
-﻿using compressor.Neuro;
+﻿using compressor.Kohonen;
 using Microsoft.Win32;
 using System;
 using System.Reflection;
@@ -14,14 +14,11 @@ namespace compressor
     /// </summary>
     public partial class MainWindow : Window
     {
-        private double _rate    = 0.1;
-
-        private int _nx         = 100;
-        private int _ny         = 100;
-        private int _radius     = 10;
+        private int _ns         = 3;
+        private int _nx         = 10;
+        private int _ny         = 10;
+        
         private int _iterations = 1000;
-
-        private DistanceNetwork nt = null;
 
         public MainWindow()
         {
@@ -41,6 +38,15 @@ namespace compressor
 
             if (get)
             {
+                // ns
+                try
+                {
+                    _ns = Math.Max(1, Math.Min(50, int.Parse(txtNS.Text)));
+                }
+                catch
+                {
+                }
+
                 // nx
                 try
                 {
@@ -67,44 +73,14 @@ namespace compressor
                 catch
                 {
                 }
-
-                // rate
-                try
-                {
-                    _rate = Math.Max(0.00001, Math.Min(1.0, double.Parse(txtRate.Text)));
-                }
-                catch
-                {   
-                }
-
-                // radius
-                try
-                {
-                    _radius = Math.Max(5, Math.Min(75, int.Parse(txtRadius.Text)));
-                }
-                catch
-                {   
-                }
-
-
-
             }
             else
-            {
-                txtRate.Text = _rate.ToString();
+            {   
                 txtNX.Text = _nx.ToString();
                 txtNY.Text = _ny.ToString();
-                txtRadius.Text = _radius.ToString();
+                txtNS.Text = _ns.ToString();
                 txtIter.Text = _iterations.ToString();
             }
-        }
-
-        private void RandomizeNetwork()
-        {
-            Neuron.RandRange = new Range<double>(0, 255);
-
-            // randomize net
-            nt.Randomize();
         }
 
         private void OpenCommandHandler(object sender, ExecutedRoutedEventArgs e)
@@ -148,7 +124,164 @@ namespace compressor
 
             byte[] pixels = new byte[len];
             bmp.CopyPixels(pixels, stride, 0);
-          
+
+            
+            if (_ns % 2 == 0) 
+                _ns--;
+            
+            int S = (_ns - 1) / 2;
+            
+            int DIM = _ns * _ns;            
+            int NW = _ns * _nx;
+            int NH = _ns * _ny;
+
+            int k, x, y;            
+
+            Som som_a = new Som(_nx, _ny, DIM);
+            Som som_r = new Som(_nx, _ny, DIM);
+            Som som_g = new Som(_nx, _ny, DIM);
+            Som som_b = new Som(_nx, _ny, DIM);
+
+            Random rand = new Random();
+
+            double[] vA = new double[DIM];
+            double[] vR = new double[DIM];
+            double[] vG = new double[DIM];
+            double[] vB = new double[DIM];
+
+            for (k = 0; k < _iterations; k++)
+            {
+                x = S + (int)Math.Floor(rand.NextDouble() * (W - _ns));
+                y = S + (int)Math.Floor(rand.NextDouble() * (H - _ns));
+
+                
+
+                int i, j, n = 0;
+
+                for (j = y - S; j <= y + S; j++)
+                {
+                    for (i = 4 * (W * j + x - S); i <= 4 * (W * j + x + S); i += 4)
+                    {
+                        vA[n] = pixels[i + 3];
+                        vR[n] = pixels[i + 2];
+                        vG[n] = pixels[i + 1];
+                        vB[n] = pixels[i];
+
+                        n++;
+                    }                                     
+                }
+
+                som_a.Learn(vA);
+                som_r.Learn(vR);
+                som_g.Learn(vG);
+                som_b.Learn(vB); 
+            }
+
+            // map
+            stride = 4 * NW;
+            byte[] array = new byte[NH * stride];
+
+            for (y = 0; y < _ny; y++)
+            {
+                for (x = 0; x < _nx; x++)
+                {
+                    Neuron nA = som_a[y, x];
+                    Neuron nR = som_r[y, x];
+                    Neuron nG = som_g[y, x];
+                    Neuron nB = som_b[y, x];
+                                        
+                    int x1 = (2 * S + 1) * x + S;
+                    int y1 = (2 * S + 1) * y + S;
+
+                    k = 0;
+                    for (int j = y1 - S; j <= y1 + S; j++)
+                    {
+                        for (int i = 4 * (NW * j + x1 - S); i <= 4 * (NW * j + x1 + S); i += 4)
+                        {
+                            array[i + 3] = (byte)nA[k];
+                            array[i + 2] = (byte)nR[k];
+                            array[i + 1] = (byte)nG[k];
+                            array[i] = (byte)nB[k];
+
+                            k++;
+                        }
+                    }                        
+                }
+            }
+
+            try
+            {
+                System.Drawing.Graphics g = System.Drawing.Graphics.FromHwnd(IntPtr.Zero);
+
+                WriteableBitmap bm1 = new WriteableBitmap(NW, NH, g.DpiX, g.DpiY, bmp.Format, null);
+                bm1.WritePixels(new Int32Rect(0, 0, NW, NH), array, stride, 0);
+
+                imgMap.Source = bm1;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+
+            
+            // restore
+            byte[] array1 = new byte[H * stride];
+            int offset = _ns * S + 1;
+            stride = 4 * W;
+            
+            for (y = 0; y < H; y++)
+            {
+                for (x = 0; x < W; x++)
+                {
+                    int n = 0;
+                    for (int j = y - S; j <= y + S; j++)
+                    {
+                        if (j >= 0 && j < H)
+                        {
+                            for (int i = 4 * (W * j + x - S); i <= 4 * (W * j + x + S); i += 4)
+                            {
+                                if (i >= 0 && i < 4 * H * W)
+                                {
+                                    vA[n] = pixels[i + 3];
+                                    vR[n] = pixels[i + 2];
+                                    vG[n] = pixels[i + 1];
+                                    vB[n] = pixels[i];
+                                }
+                                n++;
+                            }
+                        }
+                        else
+                            n += _ns;
+                    }
+
+                    Neuron nA = som_a.FindBmu1(vA);
+                    Neuron nR = som_r.FindBmu1(vR);
+                    Neuron nG = som_g.FindBmu1(vG);
+                    Neuron nB = som_b.FindBmu1(vB);
+
+                    pixels[stride * y + x + 3] = (byte)nA[offset];
+                    pixels[stride * y + x + 2] = (byte)nR[offset];
+                    pixels[stride * y + x + 1] = (byte)nG[offset];
+                    pixels[stride * y + x] = (byte)nB[offset];
+
+                }
+            }           
+
+            try
+            {   
+
+                WriteableBitmap bm1 = new WriteableBitmap(W, H, bmp.DpiX, bmp.DpiY, bmp.Format, null);
+                bm1.WritePixels(new Int32Rect(0, 0, W, H), pixels, stride, 0);
+
+                imgReconstr.Source = bm1;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+           
+            #region map
+            /*
 
             // input
             double[] input = new double[4];
@@ -210,20 +343,10 @@ namespace compressor
                     array[stride * y + x + 3] = (byte)Math.Max(0, Math.Min(255, neuron[3]));
                 }
             }
+                 * */
 
-            try
-            {
-                System.Drawing.Graphics g = System.Drawing.Graphics.FromHwnd(IntPtr.Zero);
-
-                WriteableBitmap bm1 = new WriteableBitmap(_nx, _ny, g.DpiX, g.DpiY, bmp.Format, null);
-                bm1.WritePixels(new Int32Rect(0, 0, _nx, _ny), array, stride, 0);
-
-                imgMap.Source = bm1;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
+            #endregion          
+             
 
             lblStatus.Text = "";
             this.Cursor = Cursors.Arrow;

@@ -57,20 +57,17 @@
                 </Button>                
             </ToolBar>
             <ToolBar>
-                <Label>Итераций</Label>
-                <TextBox Name="txtIter" Width="40" KeyDown="txtNum_KeyDown"/>
-                <Separator />
-                <Label>Радиус</Label>
-                <TextBox Name="txtRadius" Width="40" KeyDown="txtNum_KeyDown"/>
-                <Separator />
-                <Label>Скорость обучения</Label>
-                <TextBox Name="txtRate" Width="40" KeyDown="txtNum_KeyDown"/>
-                <Separator />
+                <Label>Размер</Label>
+                <TextBox Name="txtNS" Width="40" KeyDown="txtNum_KeyDown"/>
+                <Separator />                             
                 <Label>NX</Label>
                 <TextBox Name="txtNX" Width="40" KeyDown="txtNum_KeyDown"/>
                 <Separator />
                 <Label>NY</Label>
                 <TextBox Name="txtNY" Width="40" KeyDown="txtNum_KeyDown"/>
+                <Label>Итераций</Label>
+                <TextBox Name="txtIter" Width="40" KeyDown="txtNum_KeyDown"/>
+                <Separator />
             </ToolBar>
             <ToolBar>
                 <Button Command="self:CustomCommands.Start" >
@@ -82,7 +79,7 @@
                 <Button Command="self:CustomCommands.Start" >
                     <StackPanel Orientation="Horizontal">
                         <Image Source="Resources/gears16.png" />
-                        <TextBlock Text="Восстановление" Margin="5, 0" />
+                        <TextBlock Text="Сжатие" Margin="5, 0" />
                     </StackPanel>
                 </Button>
             </ToolBar>
@@ -92,7 +89,7 @@
         <Label Content="Сжатое изображение" Grid.Row="2" Grid.Column="2" HorizontalAlignment="Center"/>                
         
         <Border BorderBrush="Gray" Margin="10, 0, 10, 10" BorderThickness="1" Grid.Row="3" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
-            <Image Name="imgOrig" Source="d:\dev\compressor\copy.bmp" StretchDirection="DownOnly" />
+            <Image Name="imgOrig" Source="d:\dev\compressor\canvas.png" StretchDirection="DownOnly" />
         </Border>
 
         <Border BorderBrush="Gray" Margin="10, 0, 10, 10" BorderThickness="1" Grid.Row="3" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >            
@@ -100,7 +97,7 @@
         </Border>
 
         <Border BorderBrush="Gray" Margin="10, 0, 10, 10" BorderThickness="1" Grid.Row="3" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
-            <Image Name="imgReconstr" />
+            <Image Name="imgReconstr" StretchDirection="DownOnly" />
         </Border>
 
         <DockPanel Grid.ColumnSpan="3" Grid.Row="5">

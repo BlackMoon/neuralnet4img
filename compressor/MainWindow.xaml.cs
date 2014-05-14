@@ -14,11 +14,16 @@ namespace compressor
     /// </summary>
     public partial class MainWindow : Window
     {
+        private int DIM         = 0;
+
         private int _ns         = 3;
+        private int _s          = 1;
         private int _nx         = 10;
         private int _ny         = 10;
         
         private int _iterations = 1000;
+
+        private Network net;
 
         public MainWindow()
         {
@@ -109,6 +114,86 @@ namespace compressor
             }
         }
 
+        private void CompressCommandHandler(object sender, ExecutedRoutedEventArgs e)
+        {
+            lblStatus.Text = "Сжатие";
+            this.Cursor = Cursors.Wait;
+
+            BitmapSource bmp = (BitmapSource)imgOrig.Source;
+            int H = bmp.PixelHeight,
+                W = bmp.PixelWidth,
+                stride = (W * bmp.Format.BitsPerPixel + 7) / 8,
+                len = H * stride;
+
+            byte[] pixels = new byte[len];
+            bmp.CopyPixels(pixels, stride, 0);           
+
+             // restore
+            byte[] array1 = new byte[H * stride];
+            int offset = _ns * _s + 1;
+            stride = 4 * W;
+            
+            double[] vA = new double[DIM];
+            double[] vR = new double[DIM];
+            double[] vG = new double[DIM];
+            double[] vB = new double[DIM];
+
+            int x, y;
+            for (y = 0; y < H; y++)
+            {
+                for (x = 0; x < W; x++)
+                {
+                    int n = 0;
+                    for (int j = y - _s; j <= y + _s; j++)
+                    {
+                        if (j >= 0 && j < H)
+                        {
+                            for (int i = 4 * (W * j + x - _s); i <= 4 * (W * j + x + _s); i += 4)
+                            {
+                                if (i >= 0 && i < 4 * H * W)
+                                {
+                                    vA[n] = pixels[i + 3];
+                                    vR[n] = pixels[i + 2];
+                                    vG[n] = pixels[i + 1];
+                                    vB[n] = pixels[i];
+                                }
+                                n++;
+                            }
+                        }
+                        else
+                            n += _ns;
+                    }
+
+                    Neuron nA = net.SomA.FindBmu1(vA);
+                    Neuron nR = net.SomR.FindBmu1(vR);
+                    Neuron nG = net.SomG.FindBmu1(vG);
+                    Neuron nB = net.SomB.FindBmu1(vB);
+
+                    pixels[stride * y + x + 3] = (byte)nA[offset];
+                    pixels[stride * y + x + 2] = (byte)nR[offset];
+                    pixels[stride * y + x + 1] = (byte)nG[offset];
+                    pixels[stride * y + x] = (byte)nB[offset];
+
+                }
+            }
+
+            try
+            {
+
+                WriteableBitmap bm1 = new WriteableBitmap(W, H, bmp.DpiX, bmp.DpiY, bmp.Format, null);
+                bm1.WritePixels(new Int32Rect(0, 0, W, H), pixels, stride, 0);
+
+                imgReconstr.Source = bm1;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+
+            lblStatus.Text = "";
+            this.Cursor = Cursors.Arrow;
+        }
+
         private void StartCommandHandler(object sender, ExecutedRoutedEventArgs e)
         {
             PrepareParams();
@@ -129,19 +214,15 @@ namespace compressor
             if (_ns % 2 == 0) 
                 _ns--;
             
-            int S = (_ns - 1) / 2;
+            _s = (_ns - 1) / 2;
             
-            int DIM = _ns * _ns;            
+            DIM = _ns * _ns;            
             int NW = _ns * _nx;
             int NH = _ns * _ny;
 
-            int k, x, y;            
+            int k, x, y;
 
-            Som som_a = new Som(_nx, _ny, DIM);
-            Som som_r = new Som(_nx, _ny, DIM);
-            Som som_g = new Som(_nx, _ny, DIM);
-            Som som_b = new Som(_nx, _ny, DIM);
-
+            net = new Network(_nx, _ny, DIM);
             Random rand = new Random();
 
             double[] vA = new double[DIM];
@@ -151,16 +232,16 @@ namespace compressor
 
             for (k = 0; k < _iterations; k++)
             {
-                x = S + (int)Math.Floor(rand.NextDouble() * (W - _ns));
-                y = S + (int)Math.Floor(rand.NextDouble() * (H - _ns));
+                x = _s + (int)Math.Floor(rand.NextDouble() * (W - _ns));
+                y = _s + (int)Math.Floor(rand.NextDouble() * (H - _ns));
 
                 
 
                 int i, j, n = 0;
 
-                for (j = y - S; j <= y + S; j++)
+                for (j = y - _s; j <= y + _s; j++)
                 {
-                    for (i = 4 * (W * j + x - S); i <= 4 * (W * j + x + S); i += 4)
+                    for (i = 4 * (W * j + x - _s); i <= 4 * (W * j + x + _s); i += 4)
                     {
                         vA[n] = pixels[i + 3];
                         vR[n] = pixels[i + 2];
@@ -171,10 +252,10 @@ namespace compressor
                     }                                     
                 }
 
-                som_a.Learn(vA);
-                som_r.Learn(vR);
-                som_g.Learn(vG);
-                som_b.Learn(vB); 
+                net.SomA.Learn(vA);
+                net.SomR.Learn(vR);
+                net.SomG.Learn(vG);
+                net.SomB.Learn(vB); 
             }
 
             // map
@@ -185,18 +266,18 @@ namespace compressor
             {
                 for (x = 0; x < _nx; x++)
                 {
-                    Neuron nA = som_a[y, x];
-                    Neuron nR = som_r[y, x];
-                    Neuron nG = som_g[y, x];
-                    Neuron nB = som_b[y, x];
+                    Neuron nA = net.SomA[y, x];
+                    Neuron nR = net.SomR[y, x];
+                    Neuron nG = net.SomG[y, x];
+                    Neuron nB = net.SomB[y, x];
                                         
-                    int x1 = (2 * S + 1) * x + S;
-                    int y1 = (2 * S + 1) * y + S;
+                    int x1 = (2 * _s + 1) * x + _s;
+                    int y1 = (2 * _s + 1) * y + _s;
 
                     k = 0;
-                    for (int j = y1 - S; j <= y1 + S; j++)
+                    for (int j = y1 - _s; j <= y1 + _s; j++)
                     {
-                        for (int i = 4 * (NW * j + x1 - S); i <= 4 * (NW * j + x1 + S); i += 4)
+                        for (int i = 4 * (NW * j + x1 - _s); i <= 4 * (NW * j + x1 + _s); i += 4)
                         {
                             array[i + 3] = (byte)nA[k];
                             array[i + 2] = (byte)nR[k];
@@ -221,64 +302,7 @@ namespace compressor
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
-            }
-
-            
-            // restore
-            byte[] array1 = new byte[H * stride];
-            int offset = _ns * S + 1;
-            stride = 4 * W;
-            
-            for (y = 0; y < H; y++)
-            {
-                for (x = 0; x < W; x++)
-                {
-                    int n = 0;
-                    for (int j = y - S; j <= y + S; j++)
-                    {
-                        if (j >= 0 && j < H)
-                        {
-                            for (int i = 4 * (W * j + x - S); i <= 4 * (W * j + x + S); i += 4)
-                            {
-                                if (i >= 0 && i < 4 * H * W)
-                                {
-                                    vA[n] = pixels[i + 3];
-                                    vR[n] = pixels[i + 2];
-                                    vG[n] = pixels[i + 1];
-                                    vB[n] = pixels[i];
-                                }
-                                n++;
-                            }
-                        }
-                        else
-                            n += _ns;
-                    }
-
-                    Neuron nA = som_a.FindBmu1(vA);
-                    Neuron nR = som_r.FindBmu1(vR);
-                    Neuron nG = som_g.FindBmu1(vG);
-                    Neuron nB = som_b.FindBmu1(vB);
-
-                    pixels[stride * y + x + 3] = (byte)nA[offset];
-                    pixels[stride * y + x + 2] = (byte)nR[offset];
-                    pixels[stride * y + x + 1] = (byte)nG[offset];
-                    pixels[stride * y + x] = (byte)nB[offset];
-
-                }
             }           
-
-            try
-            {   
-
-                WriteableBitmap bm1 = new WriteableBitmap(W, H, bmp.DpiX, bmp.DpiY, bmp.Format, null);
-                bm1.WritePixels(new Int32Rect(0, 0, W, H), pixels, stride, 0);
-
-                imgReconstr.Source = bm1;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
            
             #region map
             /*
@@ -416,6 +440,7 @@ namespace compressor
 
     public static class CustomCommands
     {
+        public static readonly RoutedUICommand Compress = new RoutedUICommand("Compress", "Compress", typeof(CustomCommands));
         public static readonly RoutedUICommand Start = new RoutedUICommand("Start", "Start", typeof(CustomCommands));
     }
 }

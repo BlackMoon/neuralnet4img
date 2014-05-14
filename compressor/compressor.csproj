@@ -63,10 +63,7 @@
     <Compile Include="Kohonen\Neuron.cs" />
     <Compile Include="Kohonen\Som.cs" />
     <Compile Include="Extention.cs" />
-    <Compile Include="Neuro\Layers\DistanceLayer.cs" />
     <Compile Include="Neuro\Learning\IUnsupervisedLearning.cs" />
-    <Compile Include="Neuro\Learning\SOMLearning.cs" />
-    <Compile Include="Neuro\Networks\DistanceNetwork.cs" />
     <Compile Include="Neuro\Neurons\DistanceNeuron.cs" />
     <Compile Include="Neuro\Layers\Layer.cs" />
     <Compile Include="Neuro\Networks\Network.cs" />

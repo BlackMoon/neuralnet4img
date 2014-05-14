@@ -90,7 +90,7 @@
         <Label Content="Сжатое изображение" Grid.Row="2" Grid.Column="2" HorizontalAlignment="Center"/>                
         
         <Border BorderBrush="Gray" Margin="10, 0, 10, 10" BorderThickness="1" Grid.Row="3" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
-            <Image Name="imgOrig" Source="d:\dev\compressor\canvas.png" StretchDirection="DownOnly" />
+            <Image Name="imgOrig" Source="d:\dev\compress\canvas.png" StretchDirection="DownOnly" />
         </Border>
 
         <Border BorderBrush="Gray" Margin="10, 0, 10, 10" BorderThickness="1" Grid.Row="3" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >            

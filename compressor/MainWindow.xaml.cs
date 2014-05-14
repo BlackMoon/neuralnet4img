@@ -150,7 +150,7 @@ namespace compressor
                         {
                             for (int i = 4 * (W * j + x - _s); i <= 4 * (W * j + x + _s); i += 4)
                             {
-                                if (i >= 0 && i < 4 * H * W)
+                                if (i >= 0)// && i < 4 * H * W)
                                 {
                                     vA[n] = pixels[i + 3];
                                     vR[n] = pixels[i + 2];

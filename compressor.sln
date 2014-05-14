@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "compressor", "compressor\compressor.csproj", "{B03C60E8-BF7D-4EE9-9176-D631558F93F6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "compressorTest", "compressorTest\compressorTest.csproj", "{2D4D066A-532E-4007-933F-5273E8275E9B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -13,15 +15,19 @@ Global
 		{B03C60E8-BF7D-4EE9-9176-D631558F93F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B03C60E8-BF7D-4EE9-9176-D631558F93F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B03C60E8-BF7D-4EE9-9176-D631558F93F6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D4D066A-532E-4007-933F-5273E8275E9B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D4D066A-532E-4007-933F-5273E8275E9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D4D066A-532E-4007-933F-5273E8275E9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D4D066A-532E-4007-933F-5273E8275E9B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		BuildVersion_BuildVersioningStyle = None.None.Increment.TimeStamp
-		BuildVersion_AssemblyInfoFilename = compressor\Properties\AssemblyInfo.cs
-		BuildVersion_StartDate = 2014/5/9
-		BuildVersion_UpdateFileVersion = True
 		BuildVersion_UpdateAssemblyVersion = True
+		BuildVersion_UpdateFileVersion = True
+		BuildVersion_StartDate = 2014/5/9
+		BuildVersion_AssemblyInfoFilename = compressor\Properties\AssemblyInfo.cs
+		BuildVersion_BuildVersioningStyle = None.None.Increment.TimeStamp
 	EndGlobalSection
 EndGlobal

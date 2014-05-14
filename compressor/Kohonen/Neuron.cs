@@ -27,7 +27,13 @@ namespace compressor.Kohonen
             return sum;
         }
 
-        public double[] Learn(double c, double[] v)
+        /// <summary>
+        /// Обучение нейрона
+        /// </summary>
+        /// <param name="c"></param>
+        /// <param name="v"></param>
+        /// <returns></returns>
+        public double[] Train(double c, double[] v)
         {
             double [] res = new double[dim];
     

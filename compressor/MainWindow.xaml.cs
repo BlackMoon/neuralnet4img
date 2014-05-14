@@ -116,7 +116,15 @@ namespace compressor
 
         private void CompressCommandHandler(object sender, ExecutedRoutedEventArgs e)
         {
+            if (net == null || !net.Trained)
+            {
+                MessageBox.Show("Сеть не обучена!", "Внимание", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             lblStatus.Text = "Сжатие";
+            lblStatus.Refresh();
+
             this.Cursor = Cursors.Wait;
 
             BitmapSource bmp = (BitmapSource)imgOrig.Source;
@@ -129,10 +137,8 @@ namespace compressor
             bmp.CopyPixels(pixels, stride, 0);           
 
              // restore
-            stride = 4 * W;
-            byte[] array1 = new byte[H * stride];
+            byte[] array = new byte[H * stride];
             int offset = _ns * _s + 1;
-            
             
             int x, y;
             for (y = 0; y < H; y++)
@@ -145,6 +151,7 @@ namespace compressor
                     double[] vB = new double[DIM];
                     
                     int n = 0;
+                    // окрестность точки
                     for (int j = y - _s; j <= y + _s; j++)
                     {
                         if (j >= 0 && j < H)
@@ -165,37 +172,35 @@ namespace compressor
                             n += _ns;
                     }
 
-                    Neuron nA = net.SomA.FindBmu1(vA);
-                    Neuron nR = net.SomR.FindBmu1(vR);
-                    Neuron nG = net.SomG.FindBmu1(vG);
-                    Neuron nB = net.SomB.FindBmu1(vB);
+                    // поиск наиболее близкого по весу нейрона
+                    Neuron nA = net.SomA.GetWinner(vA);
+                    Neuron nR = net.SomR.GetWinner(vR);
+                    Neuron nG = net.SomG.GetWinner(vG);
+                    Neuron nB = net.SomB.GetWinner(vB);
                     
-                    array1[stride * y + 4 * x + 3] = (byte)nA[offset];
-                    array1[stride * y + 4 * x + 2] = (byte)nR[offset];
-                    array1[stride * y + 4 * x + 1] = (byte)nG[offset];
-                    array1[stride * y + 4 * x] = (byte)nB[offset];
-
-                    /*array1[stride * y + 4 * x + 3] = 255;
-                    array1[stride * y + 4 * x + 2] = 0;
-                    array1[stride * y + 4 * x + 1] = 0;
-                    array1[stride * y + 4 * x] = 255;*/
-
+                    array[stride * y + 4 * x + 3] = (byte)nA[offset];
+                    array[stride * y + 4 * x + 2] = (byte)nR[offset];
+                    array[stride * y + 4 * x + 1] = (byte)nG[offset];
+                    array[stride * y + 4 * x] = (byte)nB[offset];
                 }
+
+                lblProgr.Text = "Выполнено: " + Math.Round((double)100 * y / H).ToString() + "%";
+                lblProgr.Refresh();
             }
 
             try
             {
+                WriteableBitmap wbm = new WriteableBitmap(W, H, bmp.DpiX, bmp.DpiY, bmp.Format, null);
+                wbm.WritePixels(new Int32Rect(0, 0, W, H), array, stride, 0);
 
-                WriteableBitmap bm1 = new WriteableBitmap(W, H, bmp.DpiX, bmp.DpiY, bmp.Format, null);
-                bm1.WritePixels(new Int32Rect(0, 0, W, H), array1, stride, 0);
-
-                imgReconstr.Source = bm1;
+                imgCompress.Source = wbm;
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
 
+            lblProgr.Text = "Готово";
             lblStatus.Text = "";
             this.Cursor = Cursors.Arrow;
         }
@@ -205,6 +210,8 @@ namespace compressor
             PrepareParams();
 
             lblStatus.Text = "Обучение";
+            lblStatus.Refresh();
+
             this.Cursor = Cursors.Wait;
 
             BitmapSource bmp = (BitmapSource)imgOrig.Source;
@@ -215,34 +222,35 @@ namespace compressor
 
             byte[] pixels = new byte[len];
             bmp.CopyPixels(pixels, stride, 0);
-
             
             if (_ns % 2 == 0) 
-                _ns--;
+                _ns--;                              // нужен нечетн.
             
             _s = (_ns - 1) / 2;
             
-            DIM = _ns * _ns;            
-            int NW = _ns * _nx;
-            int NH = _ns * _ny;
-
-            int k, x, y;
+            DIM = _ns * _ns;                        // размер нейрона
+            int NW = _ns * _nx;                     // ширина карты Кохонена
+            int NH = _ns * _ny;                     // высота карты Кохонена
 
             net = new Network(_nx, _ny, DIM);
-            Random rand = new Random();
 
+            int k, x, y;
+            Random rand = new Random();
+                  
             for (k = 0; k < _iterations; k++)
             {
+                // рандомная точка
                 x = _s + (int)Math.Floor(rand.NextDouble() * (W - _ns));
                 y = _s + (int)Math.Floor(rand.NextDouble() * (H - _ns));
 
+                // входые (input) - ARGB
                 double[] vA = new double[DIM];
                 double[] vR = new double[DIM];
                 double[] vG = new double[DIM];
                 double[] vB = new double[DIM];
 
                 int i, j, n = 0;
-
+                // окрестность точки
                 for (j = y - _s; j <= y + _s; j++)
                 {
                     for (i = 4 * (W * j + x - _s); i <= 4 * (W * j + x + _s); i += 4)
@@ -256,13 +264,20 @@ namespace compressor
                     }                                     
                 }
 
-                net.SomA.Learn(vA);
-                net.SomR.Learn(vR);
-                net.SomG.Learn(vG);
-                net.SomB.Learn(vB); 
+                net.SomA.Train(vA);
+                net.SomR.Train(vR);
+                net.SomG.Train(vG);
+                net.SomB.Train(vB); 
+
+                if (k % 20 == 0) {
+                    lblProgr.Text = "Итерация: " + k.ToString();
+                    lblProgr.Refresh();
+                }
             }
 
-            // map
+            net.Trained = true;
+
+            // рисование карт (SOM)
             stride = 4 * NW;
             byte[] array = new byte[NH * stride];
 
@@ -298,85 +313,17 @@ namespace compressor
             {
                 System.Drawing.Graphics g = System.Drawing.Graphics.FromHwnd(IntPtr.Zero);
 
-                WriteableBitmap bm1 = new WriteableBitmap(NW, NH, g.DpiX, g.DpiY, bmp.Format, null);
-                bm1.WritePixels(new Int32Rect(0, 0, NW, NH), array, stride, 0);
+                WriteableBitmap wbm = new WriteableBitmap(NW, NH, g.DpiX, g.DpiY, bmp.Format, null);
+                wbm.WritePixels(new Int32Rect(0, 0, NW, NH), array, stride, 0);
 
-                imgMap.Source = bm1;
+                imgMap.Source = wbm;
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
-            }           
-           
-            #region map
-            /*
-
-            // input
-            double[] input = new double[4];
-
-            for (int i = 0; i < len; i += 4)
-            {
-                byte b = pixels[i];
-                byte g = pixels[i + 1];
-                byte r = pixels[i + 2];
-                byte a = pixels[i + 3];               
             }
 
-            Neuron.RandRange = new Range<double>(0, 255);
-            nt = new DistanceNetwork(4, _nx * _ny);            
-
-            SOMLearning trainer = new SOMLearning(nt, _nx, _ny);
-
-            double fixedLearningRate = _rate / 10;
-            double driftingLearningRate = fixedLearningRate * 9;
-            
-            // iterations
-            int k = 0;
-            
-            Random rand = new Random();
-            // loop
-            while (true)
-            {
-                trainer.LearningRate = driftingLearningRate * (_iterations - k) / _iterations + fixedLearningRate;
-                trainer.LearningRadius = (double)_radius * (_iterations - k) / _iterations;
-
-                int i = rand.Next(H * W);
-                input[0] = pixels[i];
-                input[1] = pixels[i + 1];
-                input[2] = pixels[i + 2];
-                input[3] = pixels[i + 3];
-
-                trainer.Run(input);
-                // increase current iteration
-                k++;
-                
-                // stop ?
-                if (k >= _iterations)
-                    break;
-            }
-
-            stride = 4 * _nx;
-            byte[] array = new byte[_ny * stride];
-            Layer layer = nt[0];
-
-            for (int y = 0, i = 0; y < _ny; y++)
-            {
-                // for all pixels
-                for (int x = 0; x < stride; i++, x += 4)
-                {
-                    Neuron neuron = layer[i];
-                    array[stride * y + x] = (byte)Math.Max(0, Math.Min(255, neuron[0]));
-                    array[stride * y + x + 1] = (byte)Math.Max(0, Math.Min(255, neuron[1]));
-                    array[stride * y + x + 2] = (byte)Math.Max(0, Math.Min(255, neuron[2]));
-                    array[stride * y + x + 3] = (byte)Math.Max(0, Math.Min(255, neuron[3]));
-                }
-            }
-                 * */
-
-            #endregion          
-             
-
-            lblStatus.Text = "";
+            lblStatus.Text = lblProgr.Text = "";
             this.Cursor = Cursors.Arrow;
         }
 
@@ -446,5 +393,15 @@ namespace compressor
     {
         public static readonly RoutedUICommand Compress = new RoutedUICommand("Compress", "Compress", typeof(CustomCommands));
         public static readonly RoutedUICommand Start = new RoutedUICommand("Start", "Start", typeof(CustomCommands));
+    }
+
+    public static class ExtensionMethods
+    {
+        private static Action EmptyDelegate = delegate() { };
+
+        public static void Refresh(this UIElement uiElement)
+        {
+            uiElement.Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Render, EmptyDelegate);
+        }
     }
 }

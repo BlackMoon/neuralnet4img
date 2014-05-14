@@ -90,7 +90,7 @@
         <Label Content="Сжатое изображение" Grid.Row="2" Grid.Column="2" HorizontalAlignment="Center"/>                
         
         <Border BorderBrush="Gray" Margin="10, 0, 10, 10" BorderThickness="1" Grid.Row="3" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
-            <Image Name="imgOrig" Source="d:\dev\compress\canvas.png" StretchDirection="DownOnly" />
+            <Image Name="imgOrig" Source="d:\dev\compressor\canvas.png" StretchDirection="DownOnly" />
         </Border>
 
         <Border BorderBrush="Gray" Margin="10, 0, 10, 10" BorderThickness="1" Grid.Row="3" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >            
@@ -98,16 +98,33 @@
         </Border>
 
         <Border BorderBrush="Gray" Margin="10, 0, 10, 10" BorderThickness="1" Grid.Row="3" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
-            <Image Name="imgReconstr" StretchDirection="DownOnly" />
+            <Image Name="imgCompress" StretchDirection="DownOnly" />
         </Border>
 
         <DockPanel Grid.ColumnSpan="3" Grid.Row="5">
             <StatusBar DockPanel.Dock="Bottom">
-                <StatusBarItem>
+                <StatusBar.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*"/>                                
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                        </Grid>
+                    </ItemsPanelTemplate>
+                </StatusBar.ItemsPanel>
+                <StatusBarItem Grid.Column="0">
                     <TextBlock Name="lblInfo" />                    
                 </StatusBarItem>
-                <StatusBarItem HorizontalAlignment="Right">
+                <StatusBarItem Grid.Column="1">
                     <TextBlock Name="lblStatus" />
+                </StatusBarItem>
+                <StatusBarItem Grid.Column="2">
+                    <TextBlock Name="lblProgr" />
                 </StatusBarItem>
             </StatusBar>
         </DockPanel>

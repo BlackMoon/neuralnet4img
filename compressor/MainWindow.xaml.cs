@@ -129,20 +129,21 @@ namespace compressor
             bmp.CopyPixels(pixels, stride, 0);           
 
              // restore
+            stride = 4 * W;
             byte[] array1 = new byte[H * stride];
             int offset = _ns * _s + 1;
-            stride = 4 * W;
             
-            double[] vA = new double[DIM];
-            double[] vR = new double[DIM];
-            double[] vG = new double[DIM];
-            double[] vB = new double[DIM];
-
+            
             int x, y;
             for (y = 0; y < H; y++)
             {
                 for (x = 0; x < W; x++)
                 {
+                    double[] vA = new double[DIM];
+                    double[] vR = new double[DIM];
+                    double[] vG = new double[DIM];
+                    double[] vB = new double[DIM];
+                    
                     int n = 0;
                     for (int j = y - _s; j <= y + _s; j++)
                     {
@@ -150,7 +151,7 @@ namespace compressor
                         {
                             for (int i = 4 * (W * j + x - _s); i <= 4 * (W * j + x + _s); i += 4)
                             {
-                                if (i >= 0)// && i < 4 * H * W)
+                                if (i >= 4 * j * W && i < 4 * (j + 1) * W)
                                 {
                                     vA[n] = pixels[i + 3];
                                     vR[n] = pixels[i + 2];
@@ -168,11 +169,16 @@ namespace compressor
                     Neuron nR = net.SomR.FindBmu1(vR);
                     Neuron nG = net.SomG.FindBmu1(vG);
                     Neuron nB = net.SomB.FindBmu1(vB);
+                    
+                    array1[stride * y + 4 * x + 3] = (byte)nA[offset];
+                    array1[stride * y + 4 * x + 2] = (byte)nR[offset];
+                    array1[stride * y + 4 * x + 1] = (byte)nG[offset];
+                    array1[stride * y + 4 * x] = (byte)nB[offset];
 
-                    pixels[stride * y + x + 3] = (byte)nA[offset];
-                    pixels[stride * y + x + 2] = (byte)nR[offset];
-                    pixels[stride * y + x + 1] = (byte)nG[offset];
-                    pixels[stride * y + x] = (byte)nB[offset];
+                    /*array1[stride * y + 4 * x + 3] = 255;
+                    array1[stride * y + 4 * x + 2] = 0;
+                    array1[stride * y + 4 * x + 1] = 0;
+                    array1[stride * y + 4 * x] = 255;*/
 
                 }
             }
@@ -181,7 +187,7 @@ namespace compressor
             {
 
                 WriteableBitmap bm1 = new WriteableBitmap(W, H, bmp.DpiX, bmp.DpiY, bmp.Format, null);
-                bm1.WritePixels(new Int32Rect(0, 0, W, H), pixels, stride, 0);
+                bm1.WritePixels(new Int32Rect(0, 0, W, H), array1, stride, 0);
 
                 imgReconstr.Source = bm1;
             }
@@ -225,17 +231,15 @@ namespace compressor
             net = new Network(_nx, _ny, DIM);
             Random rand = new Random();
 
-            double[] vA = new double[DIM];
-            double[] vR = new double[DIM];
-            double[] vG = new double[DIM];
-            double[] vB = new double[DIM];
-
             for (k = 0; k < _iterations; k++)
             {
                 x = _s + (int)Math.Floor(rand.NextDouble() * (W - _ns));
                 y = _s + (int)Math.Floor(rand.NextDouble() * (H - _ns));
 
-                
+                double[] vA = new double[DIM];
+                double[] vR = new double[DIM];
+                double[] vG = new double[DIM];
+                double[] vB = new double[DIM];
 
                 int i, j, n = 0;
 

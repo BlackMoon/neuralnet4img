@@ -67,7 +67,7 @@
                 <Label>NY</Label>
                 <TextBox Name="txtNY" Width="40" KeyDown="txtNum_KeyDown"/>
                 <Label>Итераций</Label>
-                <TextBox Name="txtIter" Width="40" KeyDown="txtNum_KeyDown"/>
+                <TextBox Name="txtIter" Width="60" KeyDown="txtNum_KeyDown"/>
                 <Separator />
             </ToolBar>
             <ToolBar>

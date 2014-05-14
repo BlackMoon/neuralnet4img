@@ -6,15 +6,16 @@ namespace compressor.Kohonen
      * Самоорганизующаяся карта Кохонена (SOM)
      **/
 
-    class Som
+    public class Som
     {
         private int nx;                         // ширина карты
         private int ny;                         // высота карты
-        private int dim;                        // размер нейрона
-        private int size;                       // размер карты
+        private int dim;                        // размер нейрона        
         private int t = 0;                      // текущая итерация обучения 
 
         private Neuron[,] map;
+
+        public int Size { get; set; }           // размер карты
 
         public Neuron this[int y, int x]
         {
@@ -26,7 +27,8 @@ namespace compressor.Kohonen
             this.nx = nx;
             this.ny = ny;
             this.dim = dim;
-            this.size = this.nx * this.ny;
+            
+            Size = this.nx * this.ny;
             
             this.map = new Neuron[ny, nx];
 
@@ -89,7 +91,7 @@ namespace compressor.Kohonen
             int [] pt = this.FindBmu(input);                             
             this.t++;
 
-            double sigma = 2 * Math.Sqrt(this.size / this.t);
+            double sigma = 2 * Math.Sqrt(Size / this.t);
             int r = (int)Math.Round(sigma * 2);
             double alpha = this.t < 10 ? 1 : 1 / Math.Pow(this.t - 9, 0.2);
 

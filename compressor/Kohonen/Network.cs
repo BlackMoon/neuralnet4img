@@ -2,7 +2,10 @@
 
 namespace compressor.Kohonen
 {
-    class Network
+    /**
+     * Нейронная сеть с 1 слоем - картой Кохонена
+     **/
+    public class Network
     {
         private bool trained = false;       
 

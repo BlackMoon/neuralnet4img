@@ -178,6 +178,7 @@ namespace compressor
                     Neuron nG = net.SomG.GetWinner(vG);
                     Neuron nB = net.SomB.GetWinner(vB);
                     
+                    // запись в сжатое изображение
                     array[stride * y + 4 * x + 3] = (byte)nA[offset];
                     array[stride * y + 4 * x + 2] = (byte)nR[offset];
                     array[stride * y + 4 * x + 1] = (byte)nG[offset];
@@ -290,6 +291,7 @@ namespace compressor
                     Neuron nG = net.SomG[y, x];
                     Neuron nB = net.SomB[y, x];
                                         
+                    // преобразование координат
                     int x1 = (2 * _s + 1) * x + _s;
                     int y1 = (2 * _s + 1) * y + _s;
 

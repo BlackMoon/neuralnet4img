@@ -77,12 +77,6 @@
     <Compile Include="Kohonen\Neuron.cs" />
     <Compile Include="Kohonen\Som.cs" />
     <Compile Include="Extention.cs" />
-    <Compile Include="Neuro\Learning\IUnsupervisedLearning.cs" />
-    <Compile Include="Neuro\Neurons\DistanceNeuron.cs" />
-    <Compile Include="Neuro\Layers\Layer.cs" />
-    <Compile Include="Neuro\Networks\Network.cs" />
-    <Compile Include="Neuro\Neurons\Neuron.cs" />
-    <Compile Include="Neuro\Range.cs" />
     <Compile Include="UserPreferences.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -156,6 +150,9 @@
       <ProductName>Windows Installer 4.5</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Test\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

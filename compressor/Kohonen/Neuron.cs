@@ -2,10 +2,10 @@
 
 namespace compressor.Kohonen
 {
-    class Neuron
+    public class Neuron
     {
-        public int dim;
-        public double [] w;
+        private int dim;
+        private double [] w;
 
         public double this[int index]
         {
